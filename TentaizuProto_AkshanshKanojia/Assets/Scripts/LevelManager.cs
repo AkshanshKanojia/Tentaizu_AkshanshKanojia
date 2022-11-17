@@ -13,7 +13,7 @@ public class LevelManager : MonoBehaviour
     public event NeighbourUpdated UpdateNeighbour;
     public int UsedStars = 10;
 
-    ButtonInputManager[] mang;
+    public ButtonInputManager[] mang;
     int CurtActiveButton = 0;
     List<ButtonInputManager> NumberHolders = new List<ButtonInputManager>();
 
@@ -34,6 +34,7 @@ public class LevelManager : MonoBehaviour
         for (int i = 0; i < mang.Length; i++)
         {
             mang[i] = CellButtonHolder.GetChild(i).GetComponent<ButtonInputManager>();
+            mang[i].ArrayIndex = i;
             if (mang[i].IncludeNumber)
             {
                 NumberHolders.Add(mang[i]);

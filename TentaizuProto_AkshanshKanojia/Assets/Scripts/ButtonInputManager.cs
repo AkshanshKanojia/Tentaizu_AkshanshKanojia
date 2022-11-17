@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -6,6 +7,8 @@ using UnityEngine.UI;
 public class ButtonInputManager : MonoBehaviour, IPointerClickHandler
 {
     public bool IncludeNumber = false;
+    public int ArrayIndex;
+
     [SerializeField] string NumberValue;
     [SerializeField] float DetectionRadius = 10f;
     [SerializeField] LayerMask mask;
@@ -20,7 +23,7 @@ public class ButtonInputManager : MonoBehaviour, IPointerClickHandler
 
     [HideInInspector] public bool HoldStar = false, IsValid = false;
 
-    [SerializeField] ButtonInputManager[] curtNeighbours;
+    [SerializeField] List<ButtonInputManager> curtNeighbours;
 
     private void Start()
     {
@@ -59,18 +62,37 @@ public class ButtonInputManager : MonoBehaviour, IPointerClickHandler
     }
     void GetNeighbours()
     {
-        Collider[] _tempChilds = Physics.OverlapSphere(transform.position, DetectionRadius);
-        curtNeighbours = new ButtonInputManager[_tempChilds.Length];
-        for (int i = 0; i < curtNeighbours.Length; i++)
+        //Collider[] _tempChilds = Physics.OverlapSphere(transform.position, DetectionRadius);
+        //curtNeighbours = new ButtonInputManager[_tempChilds.Length];
+        //for (int i = 0; i < curtNeighbours.Length; i++)
+        //{
+        //    if (_tempChilds[i].transform.parent.GetComponent<ButtonInputManager>() != this)
+        //        curtNeighbours[i] = _tempChilds[i].transform.parent.GetComponent<ButtonInputManager>();
+        //}
+        var _tempButt = levelManager.mang;
+        int _tempIndex = ArrayIndex + 1;
+        if (_tempIndex <= 7)//bottom most
         {
-            if (_tempChilds[i].transform.parent.GetComponent<ButtonInputManager>() != this)
-                curtNeighbours[i] = _tempChilds[i].transform.parent.GetComponent<ButtonInputManager>();
+            curtNeighbours.Add(_tempButt[ArrayIndex + 7]);//top
+            if (_tempIndex != 7)//not right most
+            {
+                curtNeighbours.Add(_tempButt[ArrayIndex + 1]);//right
+                curtNeighbours.Add(_tempButt[ArrayIndex + 8]);//digonals
+            }
+            if(_tempIndex != 1)
+            {
+                curtNeighbours.Add( _tempButt[ArrayIndex-1]);//left
+                curtNeighbours.Add(_tempButt[ArrayIndex + 6]);//digonals
+            }
         }
     }
     void UpdateNeighbourData()
     {
         CurtStars = 0;
-        GetNeighbours();
+        if (curtNeighbours.Count == 0)
+        {
+            GetNeighbours();
+        }
         foreach (var neighbour in curtNeighbours)
         {
             if (neighbour != null)
