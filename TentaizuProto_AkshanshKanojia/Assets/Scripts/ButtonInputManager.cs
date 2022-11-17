@@ -32,13 +32,19 @@ public class ButtonInputManager : MonoBehaviour, IPointerClickHandler
         numTxt = GetComponentInChildren<TMP_Text>();
         tempCol = img.color;
         CurtActiveCol = tempCol;
-        if (IncludeNumber)
-        {
-            numTxt.text = NumberValue;
-            levelManager.UpdateNeighbour += UpdateNeighbourData;
-            MaxStars = (int.TryParse(NumberValue, out MaxStars)) ? MaxStars : 0;
-        }
     }
+
+    public void InsertNumber(string _value)
+    {
+        NumberValue = _value;
+        IncludeNumber = true;
+        if(numTxt!=null)
+        numTxt.text = NumberValue;
+        if(levelManager!=null)
+        levelManager.UpdateNeighbour += UpdateNeighbourData;
+        MaxStars = (int.TryParse(NumberValue, out MaxStars)) ? MaxStars : 0;
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
         AddStar(!HoldStar);
@@ -62,15 +68,11 @@ public class ButtonInputManager : MonoBehaviour, IPointerClickHandler
     }
     void GetNeighbours()
     {
-        //Collider[] _tempChilds = Physics.OverlapSphere(transform.position, DetectionRadius);
-        //curtNeighbours = new ButtonInputManager[_tempChilds.Length];
-        //for (int i = 0; i < curtNeighbours.Length; i++)
-        //{
-        //    if (_tempChilds[i].transform.parent.GetComponent<ButtonInputManager>() != this)
-        //        curtNeighbours[i] = _tempChilds[i].transform.parent.GetComponent<ButtonInputManager>();
-        //}
         var _tempButt = levelManager.mang;
         int _tempIndex = ArrayIndex + 1;
+
+        #region Neighbour Calculation
+        // bottom row
         if (_tempIndex <= 7)//bottom most
         {
             curtNeighbours.Add(_tempButt[ArrayIndex + 7]);//top
@@ -79,12 +81,48 @@ public class ButtonInputManager : MonoBehaviour, IPointerClickHandler
                 curtNeighbours.Add(_tempButt[ArrayIndex + 1]);//right
                 curtNeighbours.Add(_tempButt[ArrayIndex + 8]);//digonals
             }
-            if(_tempIndex != 1)
+            if (_tempIndex != 1)
             {
-                curtNeighbours.Add( _tempButt[ArrayIndex-1]);//left
+                curtNeighbours.Add(_tempButt[ArrayIndex - 1]);//left
                 curtNeighbours.Add(_tempButt[ArrayIndex + 6]);//digonals
             }
         }
+
+        // middle rows
+        else if (_tempIndex > 7 && _tempIndex < 42)
+        {
+            curtNeighbours.Add(_tempButt[ArrayIndex + 7]);//top
+            if (_tempIndex % 7 != 0)//not right most
+            {
+                curtNeighbours.Add(_tempButt[ArrayIndex + 1]);//right
+                curtNeighbours.Add(_tempButt[ArrayIndex + 8]);//top digonals
+                curtNeighbours.Add(_tempButt[ArrayIndex - 6]);//bottom digonals
+            }
+            if ((_tempIndex - 1) % 7 != 0)
+            {
+                curtNeighbours.Add(_tempButt[ArrayIndex - 1]);//left
+                curtNeighbours.Add(_tempButt[ArrayIndex + 6]);//top digonals
+                curtNeighbours.Add(_tempButt[ArrayIndex - 8]);//Bottom digonals
+            }
+            curtNeighbours.Add(_tempButt[ArrayIndex - 7]);// bottom 
+        }
+
+        //top most
+        else
+        {
+            if (_tempIndex % 7 != 0)//not right most
+            {
+                curtNeighbours.Add(_tempButt[ArrayIndex + 1]);//right
+                curtNeighbours.Add(_tempButt[ArrayIndex - 6]);//bottom digonals
+            }
+            if ((_tempIndex - 1) % 7 != 0)
+            {
+                curtNeighbours.Add(_tempButt[ArrayIndex - 1]);//left
+                curtNeighbours.Add(_tempButt[ArrayIndex - 8]);//Bottom digonals
+            }
+            curtNeighbours.Add(_tempButt[ArrayIndex - 7]);// bottom 
+        }
+        #endregion
     }
     void UpdateNeighbourData()
     {

@@ -1,13 +1,14 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 public class LevelManager : MonoBehaviour
 {
     [SerializeField] Transform CellButtonHolder;
     [SerializeField] GameObject ClearUI;
     [SerializeField] TMP_Text StarTxt;
+    bool GeneratedLevel = false;
 
     public delegate void NeighbourUpdated();
     public event NeighbourUpdated UpdateNeighbour;
@@ -16,6 +17,23 @@ public class LevelManager : MonoBehaviour
     public ButtonInputManager[] mang;
     int CurtActiveButton = 0;
     List<ButtonInputManager> NumberHolders = new List<ButtonInputManager>();
+
+    [System.Serializable]
+    struct LevelDetailHolder
+    {
+        public string LevelName;
+        [Tooltip("pass index assuming not starting from 0 and value as number in that cell")]
+        public List<SingleLevelDetail> LevelDetails;
+    }
+
+    [SerializeField] List<LevelDetailHolder> AvailableLevel;
+
+    [System.Serializable]
+    struct SingleLevelDetail
+    {
+        public int NumberIndex;
+        public string NumberValue;
+    }
 
     private void Start()
     {
@@ -27,7 +45,21 @@ public class LevelManager : MonoBehaviour
     private void Update()
     {
         SetActiveButton();
+        if (!GeneratedLevel)
+        {
+            GenerateRandomLevel();
+            GeneratedLevel = true;
+        }
     }
+    void GenerateRandomLevel()
+    {
+        int _levelIndex = Random.Range(0, AvailableLevel.Count);
+        foreach (var num in AvailableLevel[_levelIndex].LevelDetails)
+        {
+            mang[num.NumberIndex - 1].InsertNumber(num.NumberValue);
+        }
+    }
+
     void GetButtons()
     {
         mang = new ButtonInputManager[CellButtonHolder.childCount];
